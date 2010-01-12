@@ -115,7 +115,7 @@ def url_join(*args):
     else:
         url = "/"
     for arg in args:
-        arg = str(arg).replace("\\", "/")
+        arg = unicode(arg).replace("\\", "/")
         arg_split = arg.split("/")
         for elem in arg_split:
             if elem != "" and elem != "http:":
@@ -131,7 +131,7 @@ def get_path(path):
     Get Path.
     """
     
-    if os.path.isabs(path) or not os.path.isdir(os.path.join(MEDIA_ROOT, DIRECTORY, path)):
+    if path.startswith('.') or os.path.isabs(path) or not os.path.isdir(os.path.join(MEDIA_ROOT, DIRECTORY, path)):
         return None
     return path
 
