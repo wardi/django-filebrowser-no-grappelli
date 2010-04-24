@@ -54,6 +54,7 @@
     </ul>
     {% endblock %}
     <div class="module filtered" id="changelist">
+      {% include "filebrowser/include/toolbar.html" %}
         <div class="changelist-content">
             <div class="result-list-container">
                 {% if results_var.results_current %}
@@ -70,10 +71,7 @@
             </div>
         </div>
         <div id="changelist-filter">
-            {% include "filebrowser/include/toolbar.html" %}
-            <div class="module filter">
-                {% include "filebrowser/include/filter.html" %}
-            </div>
+            {% include "filebrowser/include/filter.html" %}
         </div>
     </div>
 </div>
