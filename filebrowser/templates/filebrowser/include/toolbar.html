@@ -3,7 +3,7 @@
 <div id="toolbar">
   <form id="changelist-search" action="." method="get">
     <div><!-- DIV needed for valid HTML -->
-      <label for="searchbar"><img alt="Search" src="http://127.0.0.1:8000/media/admin/img/admin/icon_searchbox.png"></label>
+      <label for="searchbar"><img alt="Search" src="{% admin_media_prefix %}media/admin/img/admin/icon_searchbox.png"></label>
       <input type="text" name="q" value="{{ query.q }}" id="searchbar" />
       {% if query.filter_type %}<input type="hidden" name="filter_type" value="{{ query.filter_type }}" />{% endif %}
       {% if query.filter_date %}<input type="hidden" name="filter_date" value="{{ query.filter_date }}" />{% endif %}
