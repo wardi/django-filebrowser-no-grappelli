@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.utils.encoding import smart_str
 
 # filebrowser imports
 from filebrowser.settings import *
@@ -73,7 +74,7 @@ def get_version_path(value, version_prefix):
     Returns a path relative to MEDIA_ROOT.
     """
     
-    if os.path.isfile(os.path.join(MEDIA_ROOT, value)):
+    if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, value))):
         path, filename = os.path.split(value)
         filename, ext = os.path.splitext(filename)
         
@@ -85,7 +86,7 @@ def get_version_path(value, version_prefix):
             # so we strip the suffix (aka. version_perfix)
             new_filename = filename.replace("_" + tmp[len(tmp)-1], "")
             # check if the version exists when we use the new_filename
-            if os.path.isfile(os.path.join(MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext)):
+            if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext))):
                 # our "original" filename seem to be filename_<version> construct
                 # so we replace it with the new_filename
                 filename = new_filename
@@ -133,7 +134,7 @@ def url_join(*args):
     else:
         url = "/"
     for arg in args:
-        arg = unicode(arg).replace("\\", "/")
+        arg = arg.replace("\\", "/")
         arg_split = arg.split("/")
         for elem in arg_split:
             if elem != "" and elem != "http:":
@@ -159,7 +160,9 @@ def get_file(path, filename):
     Get File.
     """
     
-    if not os.path.isfile(os.path.join(MEDIA_ROOT, DIRECTORY, path, filename)) and not os.path.isdir(os.path.join(MEDIA_ROOT, DIRECTORY, path, filename)):
+    converted_path = smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, path, filename))
+    
+    if not os.path.isfile(converted_path) and not os.path.isdir(converted_path):
         return None
     return filename
 
@@ -220,6 +223,7 @@ def get_settings_var():
     settings_var['VERSIONS'] = VERSIONS
     settings_var['ADMIN_VERSIONS'] = ADMIN_VERSIONS
     settings_var['ADMIN_THUMBNAIL'] = ADMIN_THUMBNAIL
+    settings_var['PREVIEW_VERSION'] = PREVIEW_VERSION
     # FileBrowser Options
     settings_var['MAX_UPLOAD_SIZE'] = MAX_UPLOAD_SIZE
     # Convert Filenames
@@ -283,9 +287,9 @@ def version_generator(value, version_prefix, force=None):
     ImageFile.MAXBLOCK = IMAGE_MAXBLOCK # default is 64k
     
     try:
-        im = Image.open(os.path.join(MEDIA_ROOT, value))
+        im = Image.open(smart_str(os.path.join(MEDIA_ROOT, value)))
         version_path = get_version_path(value, version_prefix)
-        absolute_version_path = os.path.join(MEDIA_ROOT, version_path)
+        absolute_version_path = smart_str(os.path.join(MEDIA_ROOT, version_path))
         version_dir = os.path.split(absolute_version_path)[0]
         if not os.path.isdir(version_dir):
             os.makedirs(version_dir)

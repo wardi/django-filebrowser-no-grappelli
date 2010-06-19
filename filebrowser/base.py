@@ -10,6 +10,7 @@ from django.conf import settings
 # filebrowser imports
 from filebrowser.settings import *
 from filebrowser.functions import get_file_type, url_join, is_selectable, get_version_path
+from django.utils.encoding import force_unicode
 
 # PIL import
 if STRICT_PIL:
@@ -40,8 +41,9 @@ class FileObject(object):
         """
         Filesize.
         """
-        if os.path.isfile(os.path.join(MEDIA_ROOT, self.path)) or os.path.isdir(os.path.join(MEDIA_ROOT, self.path)):
-            return os.path.getsize(os.path.join(MEDIA_ROOT, self.path))
+        path = force_unicode(self.path)
+        if os.path.isfile(os.path.join(MEDIA_ROOT, path)) or os.path.isdir(os.path.join(MEDIA_ROOT, path)):
+            return os.path.getsize(os.path.join(MEDIA_ROOT, path))
         return ""
     filesize = property(_filesize)
     
@@ -81,7 +83,7 @@ class FileObject(object):
         """
         Full server PATH including MEDIA_ROOT.
         """
-        return u"%s" % os.path.join(MEDIA_ROOT, self.path)
+        return os.path.join(MEDIA_ROOT, self.path)
     path_full = property(_path_full)
     
     def _path_relative(self):
@@ -105,7 +107,7 @@ class FileObject(object):
         """
         Full URL including MEDIA_URL.
         """
-        return u"%s" % url_join(MEDIA_URL, self.url_rel)
+        return force_unicode(url_join(MEDIA_URL, self.url_rel))
     url_full = property(_url_full)
     
     def _url_save(self):
@@ -191,12 +193,12 @@ class FileObject(object):
     is_empty = property(_is_empty)
     
     def __repr__(self):
-        return u"%s" % self.url_save
+        return force_unicode(self.url_save)
     
     def __str__(self):
-        return u"%s" % self.url_save
+        return force_unicode(self.url_save)
     
     def __unicode__(self):
-        return u"%s" % self.url_save
+        return force_unicode(self.url_save)
 
 

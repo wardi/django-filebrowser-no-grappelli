@@ -17,6 +17,8 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import Signal
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.utils.encoding import smart_str
+
 try:
     # django SVN
     from django.views.decorators.csrf import csrf_exempt
@@ -236,6 +238,7 @@ def upload(request):
     }, context_instance=Context(request))
 upload = staff_member_required(never_cache(upload))
 
+
 @csrf_exempt
 def _check_file(request):
     """
@@ -253,7 +256,7 @@ def _check_file(request):
         for k,v in request.POST.items():
             if k != "folder":
                 v = convert_filename(v)
-                if os.path.isfile(os.path.join(MEDIA_ROOT, DIRECTORY, folder, v)):
+                if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, folder, v))):
                     fileArray[k] = v
     
     return HttpResponse(simplejson.dumps(fileArray))
@@ -286,12 +289,12 @@ def _upload_file(request):
             uploadedfile = handle_file_upload(abs_path, filedata)
             # MOVE UPLOADED FILE
             # if file already exists
-            if os.path.isfile(os.path.join(MEDIA_ROOT, DIRECTORY, folder, filedata.name)):
-                old_file = os.path.join(abs_path, filedata.name)
-                new_file = os.path.join(abs_path, uploadedfile)
+            if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, folder, filedata.name))):
+                old_file = smart_str(os.path.join(abs_path, filedata.name))
+                new_file = smart_str(os.path.join(abs_path, uploadedfile))
                 file_move_safe(new_file, old_file)
             # POST UPLOAD SIGNAL
-            filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(os.path.join(DIRECTORY, folder, filedata.name)))
+            filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(smart_str(os.path.join(DIRECTORY, folder, filedata.name))))
     return HttpResponse('True')
 #_upload_file = flash_login_required(_upload_file)
 
@@ -334,7 +337,7 @@ def delete(request):
                     except:
                         pass
                 # DELETE FILE
-                os.unlink(os.path.join(abs_path, filename))
+                os.unlink(smart_str(os.path.join(abs_path, filename)))
                 # POST DELETE SIGNAL
                 filebrowser_post_delete.send(sender=request, path=path, filename=filename)
                 # MESSAGE & REDIRECT

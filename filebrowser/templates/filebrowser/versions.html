@@ -33,24 +33,23 @@
     
     {% ifequal query.pop '3' %}
     <!-- CKeditor (former "FCKeditor") -->
-    <script language="javascript" type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}js/FB_CKEditor.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}js/FB_CKeditor.js"></script>
     {% endifequal %}
     
     {{ media }}
 {% endblock %}
 
 <!-- COLTYPE/BODYCLASS -->
-{% block coltype %}colM{% endblock %}
 {% block bodyclass %}change-list filebrowser{% if query.pop %} popup{% endif %}{% endblock %}
+{% block content-class %}content-flexible{% endblock %}
 
 <!-- BREADCRBUMBS -->
 {% block breadcrumbs %}{% include "filebrowser/include/breadcrumbs.html" %}{% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
-<div id="content-main">
-    <div class="module" id="changelist">
-        <div class="changelist-content">
+<div id="changelist" class="container-full">
+    <div class="module changelist-results">
         <table cellspacing="0">
             <thead>
                 <tr>
@@ -81,9 +80,9 @@
                 <td class="fb_icon">
                     {% selectable image_version.filetype query.type %}
                     {% if selectable %}
-                    <a href="javascript://" onclick="FileSubmit('{{ image_version.url_save }}', '{{ image_version.url_thumbnail }}', '{{ image_version.filetype }}');" class="fb_selectlink" title="{% trans 'Select' %}"></a>
+                        <button class="button fb_selectlink" onclick="FileSubmit('{{ image_version.url_save }}', '{{ image_version.url_thumbnail }}', '{{ image_version.filetype }}');">{% trans "Select" %}</button>
                     {% else %}
-                    <img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_select_disabled.gif" width="23" height="17" />
+                        &nbsp;
                     {% endif %}
                 </td>
                 {% endifequal %}
@@ -93,9 +92,9 @@
                 <td class="fb_icon">
                     {% selectable image_version.filetype query.type %}
                     {% if selectable %}
-                    <a href="javascript:FileBrowserDialogue.fileSubmit('{{ image_version.url_save|escapejs }}');" class="fb_selectlink" title="{% trans 'Select File' %}"></a>
+                        <button class="button fb_selectlink" onclick="FileBrowserDialogue.fileSubmit('{{ image_version.url_save|escapejs }}');">{% trans "Select" %}</button>
                     {% else %}
-                    <img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_select_disabled.gif" width="23" height="17" />
+                        &nbsp;
                     {% endif %}
                 </td>
                 {% endifequal %}
@@ -105,9 +104,9 @@
                 <td class="fb_icon">
                     {% selectable image_version.filetype query.type %}
                     {% if selectable %}
-                    <a href="#" onclick="OpenFile(ProtectPath('{{ image_version.url_save|escapejs }}'));return false;" class="fb_selectlink" title="{% trans 'Select File' %}"></a>
+                        <button class="button fb_selectlink" onclick="OpenFile(ProtectPath('{{ image_version.url_save|escapejs }}'));return false;">{% trans "Select" %}</button>
                     {% else %}
-                    <img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_select_disabled.gif" width="23" height="17" />
+                        &nbsp;
                     {% endif %}
                 </td>
                 {% endifequal %}
@@ -152,7 +151,6 @@
             {% endfor %}
             </tbody>
         </table>
-        </div>
     </div>
 </div>
 {% endblock %}
