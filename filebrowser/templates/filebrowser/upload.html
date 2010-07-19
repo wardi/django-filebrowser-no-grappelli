@@ -77,13 +77,13 @@
 <div id="content-main">
     <form>
         <fieldset class="module aligned">
-            <div class="row">
+            <div class="form-row">
                 <input type="File" id="id_file" />
             </div>
         </fieldset>
         <fieldset class="module aligned collapse closed">
             <h2>{% trans "Help" %}</h2>
-            <div class="row">
+            <div class="form-row">
                 {% for extension in settings_var.EXTENSIONS.items %}
                     {% ifnotequal extension.0 'Folder' %}
                         <div class="column span-4"><label class="required">{% if forloop.first %}{% trans "Allowed" %}:{% else %}&nbsp;{% endif %}</label></div>
@@ -91,12 +91,12 @@
                     {% endifnotequal %}
                 {% endfor %}
             </div>
-            <div class="row">
+            <div class="form-row">
                 <div class="column span-4"><label class="required">{% trans "Max. Filesize" %}:</label></div>
                 <div class="column span-12 last"><p>{{ settings_var.MAX_UPLOAD_SIZE|filesizeformat }}</p></div><br clear="all" />
             </div>
             {% if settings_var.CONVERT_FILENAME %}
-                <div class="row">
+                <div class="form-row">
                     <div class="column span-16 last"><p>
                         {% trans "The Name will be converted to lowercase. Spaces will be replaced with underscores." %}
                     </p></div><br clear="all" />
