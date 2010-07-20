@@ -61,16 +61,27 @@ span.fb_type.folder {
     display: block;
     margin-top: 8px;
     padding-left: 8px;
-    line-height: 16px;
+    line-height: 20px;
     white-space: nowrap;
     background-position: 0 50%;
 }
 .filebrowser a.fb_showpreview {
     float: left;
 }
-/*.filebrowser a.fb_showversions {
-   float: right;
-}*/
+.filebrowser a.fb_showversions {
+    float: left; // This is left because we arent using previews right now
+}
+.filebrowser a.fb_showversions {
+    padding-left: 25px;
+    
+    background: 0 50% no-repeat scroll;
+}
+a.fb_showversions:link, a.fb_showversions:visited {
+    background-image: url('../img/filebrowser_icon_showversions.gif');
+}
+a.fb_showversions:hover, a.fb_showversions:active {
+    background-image: url('../img/filebrowser_icon_showversions_hover.gif');
+}
 .filebrowser a.fb_showpreview {
     padding-left: 16px;
     background: 0 50% no-repeat scroll;
