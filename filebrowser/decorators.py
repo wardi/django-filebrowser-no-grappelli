@@ -21,7 +21,7 @@ def flash_login_required(function):
             import django.contrib.sessions.backends.db
             engine = django.contrib.sessions.backends.db
         session_data = engine.SessionStore(request.POST.get('session_key'))
-        user_id = session_data['_auth_user_id']
+        user_id = session_data.get('_auth_user_id', None)
         # will return 404 if the session ID does not resolve to a valid user
         request.user = get_object_or_404(User, pk=user_id)
         return function(request, *args, **kwargs)
