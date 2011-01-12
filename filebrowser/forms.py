@@ -12,7 +12,7 @@ from django.utils.translation import ugettext as _
 from filebrowser.settings import MAX_UPLOAD_SIZE, FOLDER_REGEX
 from filebrowser.functions import convert_filename
 
-alnum_name_re = re.compile(FOLDER_REGEX)
+alnum_name_re = re.compile(FOLDER_REGEX, re.U)
 
 class MakeDirForm(forms.Form):
     """
@@ -46,7 +46,7 @@ class RenameForm(forms.Form):
         self.file_extension = file_extension
         super(RenameForm, self).__init__(*args, **kwargs)
     
-    name = forms.CharField(widget=forms.TextInput(attrs=dict({ 'class': 'vTextField' }, max_length=50, min_length=3)), label=_(u'New Name'), help_text=_('Only letters, numbers, underscores, spaces and hyphens are allowed.'), required=True)
+    name = forms.CharField(widget=forms.TextInput(attrs=dict({ 'class': 'vTextField' }, min_length=1)), label=_(u'New Name'), help_text=_('Only letters, numbers, underscores, spaces and hyphens are allowed.'), required=True)
     
     def clean_name(self):
         if self.cleaned_data['name']:

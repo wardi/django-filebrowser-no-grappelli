@@ -30,18 +30,23 @@ class FileObject(object):
     """
     
     def __init__(self, path):
+        path = force_unicode(path)
         self.path = path
         self.url_rel = path.replace("\\","/")
         self.head = os.path.split(path)[0]
         self.filename = os.path.split(path)[1]
         self.filename_lower = self.filename.lower() # important for sorting
-        self.filetype = get_file_type(self.filename)
+        # ABP: fix for dotted folder names
+        if os.path.isdir(self.path_full):
+           self.filetype = 'Folder'
+        else:
+            self.filetype = get_file_type(self.filename)
     
     def _filesize(self):
         """
         Filesize.
         """
-        path = force_unicode(self.path)
+        path = self.path
         if os.path.isfile(os.path.join(MEDIA_ROOT, path)) or os.path.isdir(os.path.join(MEDIA_ROOT, path)):
             return os.path.getsize(os.path.join(MEDIA_ROOT, path))
         return ""
@@ -125,7 +130,7 @@ class FileObject(object):
         Thumbnail URL.
         """
         if self.filetype == "Image":
-            return u"%s" % url_join(MEDIA_URL, get_version_path(self.path, 'fb_thumb'))
+            return u"%s" % url_join(MEDIA_URL, get_version_path(self.path, ADMIN_THUMBNAIL))
         else:
             return ""
     url_thumbnail = property(_url_thumbnail)
@@ -137,6 +142,16 @@ class FileObject(object):
             return u"%s" % value
         else:
             return u"%s" % url_join(MEDIA_URL, self.path)
+    
+    def _folder(self):
+        directory_re = re.compile(r'^(%s)' % (DIRECTORY.rstrip('/')))
+        return u"%s/" % directory_re.sub('', self.head)
+    folder = property(_folder)
+    
+    def _folder_for_link(self):
+        directory_re = re.compile(r'^(%s)' % (DIRECTORY.rstrip('/')))
+        return u"%s" % directory_re.sub('', self.head)[1:]
+    folder_for_link = property(_folder_for_link)
     
     def _dimensions(self):
         """

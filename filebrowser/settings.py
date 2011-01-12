@@ -75,6 +75,8 @@ VERSIONS = getattr(settings, "FILEBROWSER_VERSIONS", {
     'cropped': {'verbose_name': 'Cropped (60x60px)', 'width': 60, 'height': 60, 'opts': 'crop'},
     'croppedthumbnail': {'verbose_name': 'Cropped Thumbnail (140x140px)', 'width': 140, 'height': 140, 'opts': 'crop'},
 })
+# Quality of saved versions
+VERSION_QUALITY = getattr(settings, 'FILEBROWSER_VERSION_QUALITY', 90)
 # Versions available within the Admin-Interface.
 ADMIN_VERSIONS = getattr(settings, 'FILEBROWSER_ADMIN_VERSIONS', ['thumbnail','small', 'medium','big'])
 # Which Version should be used as Admin-thumbnail.
@@ -112,7 +114,7 @@ DEFAULT_SORTING_BY = getattr(settings, "FILEBROWSER_DEFAULT_SORTING_BY", "date")
 # Sorting Order: asc, desc
 DEFAULT_SORTING_ORDER = getattr(settings, "FILEBROWSER_DEFAULT_SORTING_ORDER", "desc")
 # regex to clean dir names before creation
-FOLDER_REGEX = getattr(settings, "FILEBROWSER_FOLDER_REGEX", r'^[\sa-zA-Z0-9._/-]+$')
+FOLDER_REGEX = getattr(settings, "FILEBROWSER_FOLDER_REGEX", r'^[\w._/-]+$')
 
 # EXTRA TRANSLATION STRINGS
 # The following strings are not availabe within views or templates
