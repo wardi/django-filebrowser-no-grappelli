@@ -1,0 +1,4 @@
+include README.md
+recursive-include filebrowser/media *
+recursive-include filebrowser/templates *
+recursive-include filebrowser/locale *
