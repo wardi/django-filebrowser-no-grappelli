@@ -11,6 +11,8 @@ from filebrowser.settings import SELECT_FORMATS
 register = template.Library()
 
 
+
+
 @register.inclusion_tag('filebrowser/include/_response.html', takes_context=True)
 def query_string(context, add=None, remove=None):
     """
@@ -138,3 +140,14 @@ def selectable(parser, token):
     return SelectableNode(filetype, format)
     
 register.tag(selectable)
+
+@register.simple_tag
+def custom_admin_media_prefix():
+    import django
+    if "1.4" in django.get_version():
+        from django.conf import settings
+        return "".join([settings.STATIC_URL,"admin/"])
+    else:
+        from django.contrib.admin.templatetags import admin_media_prefix
+        return admin_media_prefix
+
