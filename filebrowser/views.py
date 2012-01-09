@@ -26,6 +26,8 @@ except:
     # django 1.1
     from django.contrib.csrf.middleware import csrf_exempt
 
+from django.contrib import messages
+
 # filebrowser imports
 from filebrowser.settings import *
 from filebrowser.functions import path_to_url, sort_by_attr, get_path, get_file, get_version_path, get_breadcrumbs, get_filterdate, get_settings_var, handle_file_upload, convert_filename
@@ -54,7 +56,7 @@ def browse(request):
     
     if path is None:
         msg = _('The requested Folder does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         if directory is None:
             # The DIRECTORY does not exist, raise an error to prevent eternal redirecting.
             raise ImproperlyConfigured, _("Error finding Upload-Folder. Maybe it does not exist?")
