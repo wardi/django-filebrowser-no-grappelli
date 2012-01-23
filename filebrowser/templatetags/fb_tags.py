@@ -148,6 +148,6 @@ def custom_admin_media_prefix():
         from django.conf import settings
         return "".join([settings.STATIC_URL,"admin/"])
     else:
-        from django.contrib.admin.templatetags import admin_media_prefix
-        return admin_media_prefix
+        from django.contrib.admin.templatetags.adminmedia import admin_media_prefix
+        return admin_media_prefix()
 
