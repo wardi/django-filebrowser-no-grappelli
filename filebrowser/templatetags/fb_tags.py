@@ -152,5 +152,5 @@ def custom_admin_media_prefix():
             from django.contrib.admin.templatetags import admin_media_prefix
         except ImportError:
             from django.contrib.admin.templatetags.adminmedia import admin_media_prefix
-        return admin_media_prefix
+        return admin_media_prefix()
 
