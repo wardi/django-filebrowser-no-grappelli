@@ -371,4 +371,12 @@ def convert_filename(value):
     else:
         return value
 
+def path_strip(path, root):
+    if not path or not root:
+        return path
+    path = os.path.normcase(path)
+    root = os.path.normcase(root)
+    if path.startswith(root):
+        return path[len(root):]
+    return path
 

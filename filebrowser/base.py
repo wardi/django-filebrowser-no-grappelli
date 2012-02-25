@@ -9,7 +9,8 @@ from django.conf import settings
 
 # filebrowser imports
 from filebrowser.settings import *
-from filebrowser.functions import get_file_type, url_join, is_selectable, get_version_path
+from filebrowser.functions import get_file_type, url_join, is_selectable, \
+    get_version_path, path_strip
 from django.utils.encoding import force_unicode
 
 # PIL import
@@ -30,8 +31,8 @@ class FileObject(object):
     """
     
     def __init__(self, path):
-        self.path = path
-        self.url_rel = path.replace("\\","/")
+        self.path = path_strip(path, DIRECTORY)
+        self.url_rel = self.path.replace("\\","/")
         self.head = os.path.split(path)[0]
         self.filename = os.path.split(path)[1]
         self.filename_lower = self.filename.lower() # important for sorting
@@ -85,7 +86,7 @@ class FileObject(object):
         """
         return os.path.join(MEDIA_ROOT, self.path)
     path_full = property(_path_full)
-    
+
     def _path_relative(self):
         return self.path
     path_relative = property(_path_relative)
