@@ -116,7 +116,11 @@ class FileObject(object):
         URL used for the filebrowsefield.
         """
         if SAVE_FULL_URL:
-            return self.url_full
+            if SAVE_DOMAIN_URL:
+                from django.contrib.sites.models import Site
+                return 'http://%s%s' % (Site.objects.get_current().domain, self.url_full)
+            else:
+                return self.url_full
         else:
             return self.url_rel
     url_save = property(_url_save)
