@@ -166,7 +166,7 @@ def mkdir(request):
     path = get_path(query.get('dir', ''))
     if path is None:
         msg = _('The requested Folder does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
     
@@ -184,7 +184,7 @@ def mkdir(request):
                 filebrowser_post_createdir.send(sender=request, path=path, dirname=form.cleaned_data['dir_name'])
                 # MESSAGE & REDIRECT
                 msg = _('The Folder %s was successfully created.') % (form.cleaned_data['dir_name'])
-                request.user.message_set.create(message=msg)
+                messages.success(request,message=msg)
                 # on redirect, sort by date desc to see the new directory on top of the list
                 # remove filter in order to actually _see_ the new folder
                 # remove pagination
@@ -221,7 +221,7 @@ def upload(request):
     path = get_path(query.get('dir', ''))
     if path is None:
         msg = _('The requested Folder does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
     
@@ -321,7 +321,7 @@ def delete(request):
             msg = _('The requested Folder does not exist.')
         else:
             msg = _('The requested File does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
     
@@ -344,7 +344,7 @@ def delete(request):
                 filebrowser_post_delete.send(sender=request, path=path, filename=filename)
                 # MESSAGE & REDIRECT
                 msg = _('The file %s was successfully deleted.') % (filename.lower())
-                request.user.message_set.create(message=msg)
+                messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
             except OSError:
@@ -360,7 +360,7 @@ def delete(request):
                 filebrowser_post_delete.send(sender=request, path=path, filename=filename)
                 # MESSAGE & REDIRECT
                 msg = _('The folder %s was successfully deleted.') % (filename.lower())
-                request.user.message_set.create(message=msg)
+                messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
             except OSError:
@@ -403,7 +403,7 @@ def rename(request):
             msg = _('The requested Folder does not exist.')
         else:
             msg = _('The requested File does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
     file_extension = os.path.splitext(filename)[1].lower()
@@ -430,7 +430,7 @@ def rename(request):
                 filebrowser_post_rename.send(sender=request, path=path, filename=filename, new_filename=new_filename)
                 # MESSAGE & REDIRECT
                 msg = _('Renaming was successful.')
-                request.user.message_set.create(message=msg)
+                messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename")
                 return HttpResponseRedirect(redirect_url)
             except OSError, (errno, strerror):
@@ -464,7 +464,7 @@ def versions(request):
             msg = _('The requested Folder does not exist.')
         else:
             msg = _('The requested File does not exist.')
-        request.user.message_set.create(message=msg)
+        messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
     
