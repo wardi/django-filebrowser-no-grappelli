@@ -87,6 +87,8 @@ PREVIEW_VERSION = getattr(settings, 'FILEBROWSER_PREVIEW_VERSION', 'small')
 # or False (default) to save path relative to MEDIA_URL.
 # Note: Full URL does not necessarily means absolute URL.
 SAVE_FULL_URL = getattr(settings, "FILEBROWSER_SAVE_FULL_URL", True)
+#Absolute URL
+SAVE_DOMAIN_URL = getattr(settings,"FILEBROWSER_SAVE_ABSOLUTE_URL", False)
 # If set to True, the FileBrowser will not try to import a mis-installed PIL.
 STRICT_PIL = getattr(settings, 'FILEBROWSER_STRICT_PIL', False)
 # PIL's Error "Suspension not allowed here" work around:
