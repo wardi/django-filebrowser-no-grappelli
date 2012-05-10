@@ -134,7 +134,7 @@ def selectable(parser, token):
     try:
         tag, filetype, format = token.split_contents()
     except:
-        raise TemplateSyntaxError, "%s tag requires 2 arguments" % token.contents.split()[0]
+        raise template.TemplateSyntaxError, "%s tag requires 2 arguments" % token.contents.split()[0]
         
     return SelectableNode(filetype, format)
     
