@@ -16,5 +16,3 @@ class FileBrowserSettings(object):
         return getattr(settings, name)
 
 fb_settings = FileBrowserSettings()
-
-print "dude!!!", __name__  #XXX
