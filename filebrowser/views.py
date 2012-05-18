@@ -30,6 +30,7 @@ from django.contrib import messages
 
 # filebrowser imports
 from filebrowser.settings import *
+from filebrowser.conf import fb_settings
 from filebrowser.functions import path_to_url, sort_by_attr, get_path, get_file, get_version_path, get_breadcrumbs, get_filterdate, get_settings_var, handle_file_upload, convert_filename
 from filebrowser.templatetags.fb_tags import query_helper
 from filebrowser.base import FileObject
@@ -48,7 +49,6 @@ def browse(request):
     """
     Browse Files/Directories.
     """
-    
     # QUERY / PATH CHECK
     query = request.GET.copy()
     path = get_path(query.get('dir', ''))
@@ -62,7 +62,7 @@ def browse(request):
             raise ImproperlyConfigured, _("Error finding Upload-Folder. Maybe it does not exist?")
         redirect_url = reverse("fb_browse") + query_helper(query, "", "dir")
         return HttpResponseRedirect(redirect_url)
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     # INITIAL VARIABLES
     results_var = {'results_total': 0, 'results_current': 0, 'delete_total': 0, 'images_total': 0, 'select_total': 0 }
@@ -84,7 +84,7 @@ def browse(request):
         results_var['results_total'] += 1
         
         # CREATE FILEOBJECT
-        fileobject = FileObject(os.path.join(DIRECTORY, path, file))
+        fileobject = FileObject(os.path.join(fb_settings.DIRECTORY, path, file))
         
         # FILTER / SEARCH
         append = False
@@ -168,7 +168,7 @@ def mkdir(request):
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     if request.method == 'POST':
         form = MakeDirForm(abs_path, request.POST)
@@ -223,7 +223,7 @@ def upload(request):
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     # SESSION (used for flash-uploading)
     cookie_dict = parse_cookie(request.META.get('HTTP_COOKIE', ''))
@@ -258,7 +258,7 @@ def _check_file(request):
         for k,v in request.POST.items():
             if k != "folder":
                 v = convert_filename(v)
-                if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, folder, v))):
+                if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, v))):
                     fileArray[k] = v
     
     return HttpResponse(simplejson.dumps(fileArray))
@@ -281,7 +281,7 @@ def _upload_file(request):
         folder = request.POST.get('folder')
         fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
         folder = fb_uploadurl_re.sub('', folder)
-        abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, folder)
+        abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder)
         if request.FILES:
             filedata = request.FILES['Filedata']
             filedata.name = convert_filename(filedata.name)
@@ -291,12 +291,12 @@ def _upload_file(request):
             uploadedfile = handle_file_upload(abs_path, filedata)
             # MOVE UPLOADED FILE
             # if file already exists
-            if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, folder, filedata.name))):
+            if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, filedata.name))):
                 old_file = smart_str(os.path.join(abs_path, filedata.name))
                 new_file = smart_str(os.path.join(abs_path, uploadedfile))
                 file_move_safe(new_file, old_file)
             # POST UPLOAD SIGNAL
-            filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(smart_str(os.path.join(DIRECTORY, folder, filedata.name))))
+            filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(smart_str(os.path.join(fb_settings.DIRECTORY, folder, filedata.name))))
     return HttpResponse('True')
 #_upload_file = flash_login_required(_upload_file)
 
@@ -323,19 +323,19 @@ def delete(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     msg = ""
     if request.GET:
         if request.GET.get('filetype') != "Folder":
-            relative_server_path = os.path.join(DIRECTORY, path, filename)
+            relative_server_path = os.path.join(fb_settings.DIRECTORY, path, filename)
             try:
                 # PRE DELETE SIGNAL
                 filebrowser_pre_delete.send(sender=request, path=path, filename=filename)
                 # DELETE IMAGE VERSIONS/THUMBNAILS
                 for version in VERSIONS:
                     try:
-                        os.unlink(os.path.join(MEDIA_ROOT, get_version_path(relative_server_path, version)))
+                        os.unlink(os.path.join(fb_settings.MEDIA_ROOT, get_version_path(relative_server_path, version)))
                     except:
                         pass
                 # DELETE FILE
@@ -405,15 +405,15 @@ def rename(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     file_extension = os.path.splitext(filename)[1].lower()
     
     if request.method == 'POST':
         form = RenameForm(abs_path, file_extension, request.POST)
         if form.is_valid():
-            relative_server_path = os.path.join(DIRECTORY, path, filename)
+            relative_server_path = os.path.join(fb_settings.DIRECTORY, path, filename)
             new_filename = form.cleaned_data['name'] + file_extension
-            new_relative_server_path = os.path.join(DIRECTORY, path, new_filename)
+            new_relative_server_path = os.path.join(fb_settings.DIRECTORY, path, new_filename)
             try:
                 # PRE RENAME SIGNAL
                 filebrowser_pre_rename.send(sender=request, path=path, filename=filename, new_filename=new_filename)
@@ -421,11 +421,11 @@ def rename(request):
                 # regenerating versions/thumbs will be done automatically
                 for version in VERSIONS:
                     try:
-                        os.unlink(os.path.join(MEDIA_ROOT, get_version_path(relative_server_path, version)))
+                        os.unlink(os.path.join(fb_settings.MEDIA_ROOT, get_version_path(relative_server_path, version)))
                     except:
                         pass
                 # RENAME ORIGINAL
-                os.rename(os.path.join(MEDIA_ROOT, relative_server_path), os.path.join(MEDIA_ROOT, new_relative_server_path))
+                os.rename(os.path.join(fb_settings.MEDIA_ROOT, relative_server_path), os.path.join(fb_settings.MEDIA_ROOT, new_relative_server_path))
                 # POST RENAME SIGNAL
                 filebrowser_post_rename.send(sender=request, path=path, filename=filename, new_filename=new_filename)
                 # MESSAGE & REDIRECT
@@ -466,10 +466,10 @@ def versions(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, DIRECTORY, path)
+    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     return render_to_response('filebrowser/versions.html', {
-        'original': path_to_url(os.path.join(DIRECTORY, path, filename)),
+        'original': path_to_url(os.path.join(fb_settings.DIRECTORY, path, filename)),
         'query': query,
         'title': _(u'Versions for "%s"') % filename,
         'settings_var': get_settings_var(),

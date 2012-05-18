@@ -9,6 +9,7 @@ from django.conf import settings
 
 # filebrowser imports
 from filebrowser.settings import *
+from filebrowser.conf import fb_settings
 from filebrowser.functions import get_file_type, url_join, is_selectable, get_version_path
 from django.utils.encoding import force_unicode
 
@@ -42,8 +43,8 @@ class FileObject(object):
         Filesize.
         """
         path = force_unicode(self.path)
-        if os.path.isfile(os.path.join(MEDIA_ROOT, path)) or os.path.isdir(os.path.join(MEDIA_ROOT, path)):
-            return os.path.getsize(os.path.join(MEDIA_ROOT, path))
+        if os.path.isfile(os.path.join(fb_settings.MEDIA_ROOT, path)) or os.path.isdir(os.path.join(fb_settings.MEDIA_ROOT, path)):
+            return os.path.getsize(os.path.join(fb_settings.MEDIA_ROOT, path))
         return ""
     filesize = property(_filesize)
     
@@ -51,8 +52,8 @@ class FileObject(object):
         """
         Date.
         """
-        if os.path.isfile(os.path.join(MEDIA_ROOT, self.path)) or os.path.isdir(os.path.join(MEDIA_ROOT, self.path)):
-            return os.path.getmtime(os.path.join(MEDIA_ROOT, self.path))
+        if os.path.isfile(os.path.join(fb_settings.MEDIA_ROOT, self.path)) or os.path.isdir(os.path.join(fb_settings.MEDIA_ROOT, self.path)):
+            return os.path.getmtime(os.path.join(fb_settings.MEDIA_ROOT, self.path))
         return ""
     date = property(_date)
     
@@ -83,7 +84,7 @@ class FileObject(object):
         """
         Full server PATH including MEDIA_ROOT.
         """
-        return os.path.join(MEDIA_ROOT, self.path)
+        return os.path.join(fb_settings.MEDIA_ROOT, self.path)
     path_full = property(_path_full)
     
     def _path_relative(self):
@@ -94,7 +95,7 @@ class FileObject(object):
         """
         Path relative to initial directory.
         """
-        directory_re = re.compile(r'^(%s)' % (DIRECTORY))
+        directory_re = re.compile(r'^(%s)' % (fb_settings.DIRECTORY))
         value = directory_re.sub('', self.path)
         return u"%s" % value
     path_relative_directory = property(_path_relative_directory)
@@ -107,7 +108,7 @@ class FileObject(object):
         """
         Full URL including MEDIA_URL.
         """
-        return force_unicode(url_join(MEDIA_URL, self.url_rel))
+        return force_unicode(url_join(fb_settings.MEDIA_URL, self.url_rel))
     url_full = property(_url_full)
     
     def _url_save(self):
@@ -125,18 +126,18 @@ class FileObject(object):
         Thumbnail URL.
         """
         if self.filetype == "Image":
-            return u"%s" % url_join(MEDIA_URL, get_version_path(self.path, ADMIN_THUMBNAIL))
+            return u"%s" % url_join(fb_settings.MEDIA_URL, get_version_path(self.path, ADMIN_THUMBNAIL))
         else:
             return ""
     url_thumbnail = property(_url_thumbnail)
     
     def url_admin(self):
         if self.filetype_checked == "Folder":
-            directory_re = re.compile(r'^(%s)' % (DIRECTORY))
+            directory_re = re.compile(r'^(%s)' % (fb_settings.DIRECTORY))
             value = directory_re.sub('', self.path)
             return u"%s" % value
         else:
-            return u"%s" % url_join(MEDIA_URL, self.path)
+            return u"%s" % url_join(fb_settings.MEDIA_URL, self.path)
     
     def _dimensions(self):
         """
@@ -144,7 +145,7 @@ class FileObject(object):
         """
         if self.filetype == 'Image':
             try:
-                im = Image.open(os.path.join(MEDIA_ROOT, self.path))
+                im = Image.open(os.path.join(fb_settings.MEDIA_ROOT, self.path))
                 return im.size
             except:
                 pass

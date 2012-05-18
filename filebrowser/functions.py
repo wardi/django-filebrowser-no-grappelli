@@ -14,6 +14,7 @@ from django.utils.encoding import smart_str
 
 # filebrowser imports
 from filebrowser.settings import *
+from filebrowser.conf import fb_settings
 
 # PIL import
 if STRICT_PIL:
@@ -33,7 +34,7 @@ def url_to_path(value):
     Returns a PATH relative to MEDIA_ROOT.
     """
     
-    mediaurl_re = re.compile(r'^(%s)' % (MEDIA_URL))
+    mediaurl_re = re.compile(r'^(%s)' % (fb_settings.MEDIA_URL))
     value = mediaurl_re.sub('', value)
     return value
 
@@ -46,9 +47,9 @@ def path_to_url(value):
     Return an URL relative to MEDIA_ROOT.
     """
     
-    mediaroot_re = re.compile(r'^(%s)' % (MEDIA_ROOT))
+    mediaroot_re = re.compile(r'^(%s)' % (fb_settings.MEDIA_ROOT))
     value = mediaroot_re.sub('', value)
-    return url_join(MEDIA_URL, value)
+    return url_join(fb_settings.MEDIA_URL, value)
 
 
 def dir_from_url(value):
@@ -58,9 +59,9 @@ def dir_from_url(value):
     an URL relative to MEDIA_URL.
     """
     
-    mediaurl_re = re.compile(r'^(%s)' % (MEDIA_URL))
+    mediaurl_re = re.compile(r'^(%s)' % (fb_settings.MEDIA_URL))
     value = mediaurl_re.sub('', value)
-    directory_re = re.compile(r'^(%s)' % (DIRECTORY))
+    directory_re = re.compile(r'^(%s)' % (fb_settings.DIRECTORY))
     value = directory_re.sub('', value)
     return os.path.split(value)[0]
 
@@ -74,7 +75,7 @@ def get_version_path(value, version_prefix):
     Returns a path relative to MEDIA_ROOT.
     """
     
-    if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, value))):
+    if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value))):
         path, filename = os.path.split(value)
         filename, ext = os.path.splitext(filename)
         
@@ -86,7 +87,7 @@ def get_version_path(value, version_prefix):
             # so we strip the suffix (aka. version_perfix)
             new_filename = filename.replace("_" + tmp[len(tmp)-1], "")
             # check if the version exists when we use the new_filename
-            if os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext))):
+            if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext))):
                 # our "original" filename seem to be filename_<version> construct
                 # so we replace it with the new_filename
                 filename = new_filename
@@ -150,7 +151,7 @@ def get_path(path):
     Get Path.
     """
     
-    if path.startswith('.') or os.path.isabs(path) or not os.path.isdir(os.path.join(MEDIA_ROOT, DIRECTORY, path)):
+    if path.startswith('.') or os.path.isabs(path) or not os.path.isdir(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)):
         return None
     return path
 
@@ -160,7 +161,7 @@ def get_file(path, filename):
     Get File.
     """
     
-    converted_path = smart_str(os.path.join(MEDIA_ROOT, DIRECTORY, path, filename))
+    converted_path = smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path, filename))
     
     if not os.path.isfile(converted_path) and not os.path.isdir(converted_path):
         return None
@@ -206,9 +207,9 @@ def get_settings_var():
     settings_var = {}
     # Main
     settings_var['DEBUG'] = DEBUG
-    settings_var['MEDIA_ROOT'] = MEDIA_ROOT
-    settings_var['MEDIA_URL'] = MEDIA_URL
-    settings_var['DIRECTORY'] = DIRECTORY
+    settings_var['MEDIA_ROOT'] = fb_settings.MEDIA_ROOT
+    settings_var['MEDIA_URL'] = fb_settings.MEDIA_URL
+    settings_var['DIRECTORY'] = fb_settings.DIRECTORY
     # FileBrowser
     settings_var['URL_FILEBROWSER_MEDIA'] = URL_FILEBROWSER_MEDIA
     settings_var['PATH_FILEBROWSER_MEDIA'] = PATH_FILEBROWSER_MEDIA
@@ -287,9 +288,9 @@ def version_generator(value, version_prefix, force=None):
     ImageFile.MAXBLOCK = IMAGE_MAXBLOCK # default is 64k
     
     try:
-        im = Image.open(smart_str(os.path.join(MEDIA_ROOT, value)))
+        im = Image.open(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value)))
         version_path = get_version_path(value, version_prefix)
-        absolute_version_path = smart_str(os.path.join(MEDIA_ROOT, version_path))
+        absolute_version_path = smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))
         version_dir = os.path.split(absolute_version_path)[0]
         if not os.path.isdir(version_dir):
             os.makedirs(version_dir)

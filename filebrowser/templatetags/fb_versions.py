@@ -10,7 +10,8 @@ from django.conf import settings
 from django.utils.encoding import force_unicode, smart_str
 
 # filebrowser imports
-from filebrowser.settings import MEDIA_ROOT, MEDIA_URL, VERSIONS
+from filebrowser.settings import VERSIONS
+from filebrowser.conf import fb_settings
 from filebrowser.functions import url_to_path, path_to_url, get_version_path, version_generator
 from filebrowser.base import FileObject
 
@@ -41,10 +42,10 @@ class VersionNode(Node):
         try:
             source = force_unicode(source)
             version_path = get_version_path(url_to_path(source), version_prefix)
-            if not os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, version_path))):
+            if not os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # create version
                 version_path = version_generator(url_to_path(source), version_prefix)
-            elif os.path.getmtime(smart_str(os.path.join(MEDIA_ROOT, url_to_path(source)))) > os.path.getmtime(smart_str(os.path.join(MEDIA_ROOT, version_path))):
+            elif os.path.getmtime(smart_str(os.path.join(fb_settings.MEDIA_ROOT, url_to_path(source)))) > os.path.getmtime(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # recreate version if original image was updated
                 version_path = version_generator(url_to_path(source), version_prefix, force=True)
             return path_to_url(version_path)
@@ -97,10 +98,10 @@ class VersionObjectNode(Node):
         try:
             source = force_unicode(source)
             version_path = get_version_path(url_to_path(source), version_prefix)
-            if not os.path.isfile(smart_str(os.path.join(MEDIA_ROOT, version_path))):
+            if not os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # create version
                 version_path = version_generator(url_to_path(source), version_prefix)
-            elif os.path.getmtime(smart_str(os.path.join(MEDIA_ROOT, url_to_path(source)))) > os.path.getmtime(smart_str(os.path.join(MEDIA_ROOT, version_path))):
+            elif os.path.getmtime(smart_str(os.path.join(fb_settings.MEDIA_ROOT, url_to_path(source)))) > os.path.getmtime(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # recreate version if original image was updated
                 version_path = version_generator(url_to_path(source), version_prefix, force=True)
             context[self.var_name] = FileObject(version_path)

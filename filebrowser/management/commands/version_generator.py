@@ -5,7 +5,8 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         import os, re
-        from filebrowser.settings import EXTENSION_LIST, EXCLUDE, MEDIA_ROOT, DIRECTORY, VERSIONS, EXTENSIONS
+        from filebrowser.settings import EXTENSION_LIST, EXCLUDE, VERSIONS, EXTENSIONS
+        from filebrowser.conf import fb_settings
         
         # Precompile regular expressions
         filter_re = []
@@ -15,7 +16,7 @@ class Command(NoArgsCommand):
             exp = (r'_%s.(%s)') % (k, '|'.join(EXTENSION_LIST))
             filter_re.append(re.compile(exp))
             
-        path = os.path.join(MEDIA_ROOT, DIRECTORY)
+        path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY)
         
         # walkt throu the filebrowser directory
         # for all/new files (except file versions itself and excludes)
