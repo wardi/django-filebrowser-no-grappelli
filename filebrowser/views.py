@@ -7,7 +7,7 @@ from time import gmtime, strftime
 # django imports
 from django.shortcuts import render_to_response, HttpResponse
 from django.template import RequestContext as Context
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext as _
@@ -53,7 +53,15 @@ def browse(request):
     query = request.GET.copy()
     path = get_path(query.get('dir', ''))
     directory = get_path('')
-    
+
+    if path is not None:
+        abs_path = os.path.abspath(os.path.join(
+            fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path))
+        if not abs_path.startswith(os.path.abspath(os.path.join(
+                fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY))):
+            # cause any attempt to leave media root directory to fail
+            raise Http404
+
     if path is None:
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
@@ -62,7 +70,6 @@ def browse(request):
             raise ImproperlyConfigured, _("Error finding Upload-Folder. Maybe it does not exist?")
         redirect_url = reverse("fb_browse") + query_helper(query, "", "dir")
         return HttpResponseRedirect(redirect_url)
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
     
     # INITIAL VARIABLES
     results_var = {'results_total': 0, 'results_current': 0, 'delete_total': 0, 'images_total': 0, 'select_total': 0 }
