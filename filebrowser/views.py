@@ -44,6 +44,27 @@ for k,v in VERSIONS.iteritems():
     exp = (r'_%s.(%s)') % (k, '|'.join(EXTENSION_LIST))
     filter_re.append(re.compile(exp))
 
+# pahaz security
+from filebrowser.settings import FOLDER_REGEX
+alnum_name_re = re.compile(FOLDER_REGEX)
+
+ROOT_DIR = os.path.abspath(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY))
+def _check_access(*path):
+    abs_path = os.path.abspath(os.path.join(ROOT_DIR, *path))
+    if not abs_path.startswith(ROOT_DIR):
+        msg = _('Access Denited.')
+        messages.warning(request,message=msg)
+        raise ImproperlyConfigured, _("Error Access Denited. Maybe you want hack me?")
+    return abs_path
+    
+def _check_name(name):
+    name = os.path.basename(name)
+    search = alnum_name_re.search(name)
+    if not search:
+        msg = _('Invalid name.')
+        messages.warning(request,message=msg)
+        raise ImproperlyConfigured, _("Name strange. Maybe you want hack me?")
+    return search.group(0)
 
 def browse(request):
     """
@@ -53,15 +74,11 @@ def browse(request):
     query = request.GET.copy()
     path = get_path(query.get('dir', ''))
     directory = get_path('')
-
-    if path is not None:
-        abs_path = os.path.abspath(os.path.join(
-            fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path))
-        if not abs_path.startswith(os.path.abspath(os.path.join(
-                fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY))):
-            # cause any attempt to leave media root directory to fail
-            raise Http404
-
+    filter_date = request.GET.get('filter_date')
+    filter_type = request.GET.get('filter_type')
+    q = request.GET.get('q')
+    _type = query.get('type')
+    
     if path is None:
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
@@ -70,6 +87,8 @@ def browse(request):
             raise ImproperlyConfigured, _("Error finding Upload-Folder. Maybe it does not exist?")
         redirect_url = reverse("fb_browse") + query_helper(query, "", "dir")
         return HttpResponseRedirect(redirect_url)
+        
+    abs_path = _check_access(path)
     
     # INITIAL VARIABLES
     results_var = {'results_total': 0, 'results_current': 0, 'delete_total': 0, 'images_total': 0, 'select_total': 0 }
@@ -91,13 +110,13 @@ def browse(request):
         results_var['results_total'] += 1
         
         # CREATE FILEOBJECT
-        fileobject = FileObject(os.path.join(fb_settings.DIRECTORY, path, file))
+        fileobject = FileObject(os.path.join(abs_path, file))
         
         # FILTER / SEARCH
         append = False
-        if fileobject.filetype == request.GET.get('filter_type', fileobject.filetype) and get_filterdate(request.GET.get('filter_date', ''), fileobject.date):
+        if fileobject.filetype == (filter_type if filter_type else fileobject.filetype) and get_filterdate(filter_date, fileobject.date):
             append = True
-        if request.GET.get('q') and not re.compile(request.GET.get('q').lower(), re.M).search(file.lower()):
+        if q and not re.compile(q.lower(), re.M).search(file.lower()):
             append = False
         
         # APPEND FILE_LIST
@@ -110,9 +129,9 @@ def browse(request):
                     results_var['delete_total'] += 1
                 elif fileobject.filetype == 'Folder' and fileobject.is_empty:
                     results_var['delete_total'] += 1
-                if query.get('type') and query.get('type') in SELECT_FORMATS and fileobject.filetype in SELECT_FORMATS[query.get('type')]:
+                if _type and _type in SELECT_FORMATS and fileobject.filetype in SELECT_FORMATS[_type]:
                     results_var['select_total'] += 1
-                elif not query.get('type'):
+                elif not _type:
                     results_var['select_total'] += 1
             except OSError:
                 # Ignore items that have problems
@@ -171,26 +190,29 @@ def mkdir(request):
     # QUERY / PATH CHECK
     query = request.GET
     path = get_path(query.get('dir', ''))
+    
     if path is None:
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
+        
+    abs_path = _check_access(path)
     
     if request.method == 'POST':
         form = MakeDirForm(abs_path, request.POST)
         if form.is_valid():
-            server_path = os.path.join(abs_path, form.cleaned_data['dir_name'])
+            dir_name = form.cleaned_data['dir_name'] # dir_name secutity dy RegExp
+            server_path = os.path.join(abs_path, dir_name) 
             try:
                 # PRE CREATE SIGNAL
-                filebrowser_pre_createdir.send(sender=request, path=path, dirname=form.cleaned_data['dir_name'])
+                filebrowser_pre_createdir.send(sender=request, path=abs_path, dirname=dir_name)
                 # CREATE FOLDER
                 os.mkdir(server_path)
                 os.chmod(server_path, 0775)
                 # POST CREATE SIGNAL
-                filebrowser_post_createdir.send(sender=request, path=path, dirname=form.cleaned_data['dir_name'])
+                filebrowser_post_createdir.send(sender=request, path=abs_path, dirname=dir_name)
                 # MESSAGE & REDIRECT
-                msg = _('The Folder %s was successfully created.') % (form.cleaned_data['dir_name'])
+                msg = _('The Folder %s was successfully created.') % (dir_name, )
                 messages.success(request,message=msg)
                 # on redirect, sort by date desc to see the new directory on top of the list
                 # remove filter in order to actually _see_ the new folder
@@ -230,7 +252,8 @@ def upload(request):
         msg = _('The requested Folder does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
+        
+    abs_path = _check_access(path)
     
     # SESSION (used for flash-uploading)
     cookie_dict = parse_cookie(request.META.get('HTTP_COOKIE', ''))
@@ -256,7 +279,7 @@ def _check_file(request):
     
     from django.utils import simplejson
     
-    folder = request.POST.get('folder')
+    folder = _check_name(request.POST.get('folder'))
     fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
     folder = fb_uploadurl_re.sub('', folder)
     
@@ -265,7 +288,7 @@ def _check_file(request):
         for k,v in request.POST.items():
             if k != "folder":
                 v = convert_filename(v)
-                if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, v))):
+                if os.path.isfile(smart_str(_check_access(folder, v))):
                     fileArray[k] = v
     
     return HttpResponse(simplejson.dumps(fileArray))
@@ -285,25 +308,26 @@ def _upload_file(request):
     from django.core.files.move import file_move_safe
     
     if request.method == 'POST':
-        folder = request.POST.get('folder')
+        folder = _check_name(request.POST.get('folder'))
         fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
         folder = fb_uploadurl_re.sub('', folder)
-        abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder)
+        abs_path = _check_access(folder)
         if request.FILES:
             filedata = request.FILES['Filedata']
-            filedata.name = convert_filename(filedata.name)
+            filedata.name = convert_filename(_check_name(filedata.name))
             # PRE UPLOAD SIGNAL
-            filebrowser_pre_upload.send(sender=request, path=request.POST.get('folder'), file=filedata)
+            filebrowser_pre_upload.send(sender=request, path=folder, file=filedata)
             # HANDLE UPLOAD
             uploadedfile = handle_file_upload(abs_path, filedata)
             # MOVE UPLOADED FILE
             # if file already exists
-            if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, filedata.name))):
+            fn = smart_str(_check_access(folder, filedata.name))
+            if os.path.isfile(fn):
                 old_file = smart_str(os.path.join(abs_path, filedata.name))
                 new_file = smart_str(os.path.join(abs_path, uploadedfile))
                 file_move_safe(new_file, old_file)
             # POST UPLOAD SIGNAL
-            filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(smart_str(os.path.join(fb_settings.DIRECTORY, folder, filedata.name))))
+            filebrowser_post_upload.send(sender=request, path=folder, file=FileObject(fn))
     return HttpResponse('True')
 #_upload_file = flash_login_required(_upload_file)
 
@@ -321,8 +345,8 @@ def delete(request):
     
     # QUERY / PATH CHECK
     query = request.GET
-    path = get_path(query.get('dir', ''))
-    filename = get_file(query.get('dir', ''), query.get('filename', ''))
+    path = get_path(_check_name(query.get('dir', '')))
+    filename = get_file(query.get('dir', ''), _check_name(query.get('filename', '')))
     if path is None or filename is None:
         if path is None:
             msg = _('The requested Folder does not exist.')
@@ -330,7 +354,8 @@ def delete(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
+        
+    abs_path = _check_access(path)
     
     msg = ""
     if request.GET:
@@ -404,7 +429,7 @@ def rename(request):
     # QUERY / PATH CHECK
     query = request.GET
     path = get_path(query.get('dir', ''))
-    filename = get_file(query.get('dir', ''), query.get('filename', ''))
+    filename = get_file(query.get('dir', ''), _check_name(query.get('filename', '')))
     if path is None or filename is None:
         if path is None:
             msg = _('The requested Folder does not exist.')
@@ -412,7 +437,7 @@ def rename(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
+    abs_path = _check_access(path)
     file_extension = os.path.splitext(filename)[1].lower()
     
     if request.method == 'POST':
@@ -465,7 +490,7 @@ def versions(request):
     # QUERY / PATH CHECK
     query = request.GET
     path = get_path(query.get('dir', ''))
-    filename = get_file(query.get('dir', ''), query.get('filename', ''))
+    filename = get_file(query.get('dir', ''), _check_name(query.get('filename', '')))
     if path is None or filename is None:
         if path is None:
             msg = _('The requested Folder does not exist.')
@@ -473,7 +498,7 @@ def versions(request):
             msg = _('The requested File does not exist.')
         messages.warning(request,message=msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, path)
+    abs_path = _check_access(path)
     
     return render_to_response('filebrowser/versions.html', {
         'original': path_to_url(os.path.join(fb_settings.DIRECTORY, path, filename)),
