@@ -111,8 +111,11 @@ LIST_PER_PAGE = getattr(settings, "FILEBROWSER_LIST_PER_PAGE", 50)
 DEFAULT_SORTING_BY = getattr(settings, "FILEBROWSER_DEFAULT_SORTING_BY", "date")
 # Sorting Order: asc, desc
 DEFAULT_SORTING_ORDER = getattr(settings, "FILEBROWSER_DEFAULT_SORTING_ORDER", "desc")
-# regex to clean dir names before creation
-FOLDER_REGEX = getattr(settings, "FILEBROWSER_FOLDER_REGEX", r'^[\sa-zA-Z0-9._/-]+$')
+
+# regex to clean dir names before creation (no use!)
+# SECURITY re for test name new dirs or file name
+# FILE_AND_DIRS_NAME_REGEXP
+FOLDER_REGEX = getattr(settings, "FILEBROWSER_FOLDER_REGEX", r'^[ \w-][ \w.-]*$')
 
 # EXTRA TRANSLATION STRINGS
 # The following strings are not availabe within views or templates

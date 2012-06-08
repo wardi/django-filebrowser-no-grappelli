@@ -31,12 +31,14 @@ class FileObject(object):
     """
     
     def __init__(self, path):
+        '''
+        `os.path.split` Split the pathname path into a pair, (head, tail) where tail is the last pathname component and head is everything leading up to that. The tail part will never contain a slash; if path ends in a slash, tail will be empty. If there is no slash in path, head will be empty. If path is empty, both head and tail are empty.
+        '''
         self.path = path
         self.url_rel = path.replace("\\","/")
-        self.head = os.path.split(path)[0]
-        self.filename = os.path.split(path)[1]
+        self.head, self.filename = os.path.split(path)
         self.filename_lower = self.filename.lower() # important for sorting
-        self.filetype = get_file_type(self.filename)
+        self.filetype = get_file_type(self.filename) # strange if file no extension then this folder
     
     def _filesize(self):
         """
