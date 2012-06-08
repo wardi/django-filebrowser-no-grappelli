@@ -363,9 +363,9 @@ def delete(request):
                 messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
-            except OSError:
+            except OSError, e:
                 # todo: define error message
-                msg = OSError
+                msg = unicode(e)
         else:
             try:
                 # PRE DELETE SIGNAL
@@ -379,21 +379,15 @@ def delete(request):
                 messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
-            except OSError:
+            except OSError, e:
                 # todo: define error message
-                msg = OSError
-    
+                msg = unicode(e)
+
     if msg:
-        request.user.message_set.create(message=msg)
-    
-    return render_to_response('filebrowser/index.html', {
-        'dir': dir_name,
-        'file': request.GET.get('filename', ''),
-        'query': query,
-        'settings_var': get_settings_var(),
-        'breadcrumbs': get_breadcrumbs(query, dir_name),
-        'breadcrumbs_title': ""
-    }, context_instance=Context(request))
+        messages.error(request, e)
+
+    redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
+    return HttpResponseRedirect(redirect_url)
 delete = staff_member_required(never_cache(delete))
 
 
