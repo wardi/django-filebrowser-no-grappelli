@@ -43,6 +43,7 @@
                 'height'            : 30,
                 'hideButton'        : false,
                 'wmode'             : 'transparent',
+                'onAllComplete'     : function(){var newpath='../browse/{% query_string %}';window.location=newpath;},
                 translations        : {
                                       browseButton: '{% trans "BROWSE" %}',
                                       error: '{% trans "An Error occured" %}',
