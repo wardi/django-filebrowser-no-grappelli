@@ -300,6 +300,7 @@ def _upload_file(request):
         if request.FILES:
             filedata = request.FILES['Filedata']
             filedata.name = convert_filename(filedata.name)
+            _check_access(request, abs_path, filedata.name)
             # PRE UPLOAD SIGNAL
             filebrowser_pre_upload.send(sender=request, path=request.POST.get('folder'), file=filedata)
             # HANDLE UPLOAD
