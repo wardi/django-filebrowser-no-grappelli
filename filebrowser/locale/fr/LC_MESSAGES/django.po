@@ -270,7 +270,7 @@ msgstr "Par type"
 
 #: templates/filebrowser/include/filter.html:41
 msgid "All"
-msgstr "Alle"
+msgstr "Tous"
 
 #: templates/filebrowser/include/paginator.html:5
 msgid "No Items Found."
@@ -304,7 +304,7 @@ msgstr "Date"
 
 #: templates/filebrowser/include/toolbar.html:14
 msgid "Go"
-msgstr "Chercher"
+msgstr "Envoyer"
 
 #: templates/filebrowser/include/toolbar.html:16
 #, python-format
