@@ -157,6 +157,7 @@ def browse(request):
         'counter': counter,
         'query': query,
         'title': _(u'FileBrowser'),
+        'is_popup': "pop" in request.REQUEST,   # ChangeList uses "pop"
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': ""
@@ -217,6 +218,7 @@ def mkdir(request):
         'form': form,
         'query': query,
         'title': _(u'New Folder'),
+        'is_popup': "pop" in request.REQUEST,
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'New Folder')
@@ -246,6 +248,7 @@ def upload(request):
     return render_to_response('filebrowser/upload.html', {
         'query': query,
         'title': _(u'Select files to upload'),
+        'is_popup': "pop" in request.REQUEST,
         'settings_var': get_settings_var(),
         'session_key': session_key,
         'breadcrumbs': get_breadcrumbs(query, path),
@@ -454,6 +457,7 @@ def rename(request):
         'query': query,
         'file_extension': file_extension,
         'title': _(u'Rename "%s"') % filename,
+        'is_popup': "pop" in request.REQUEST,
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Rename')
@@ -483,6 +487,7 @@ def versions(request):
         'original': path_to_url(os.path.join(fb_settings.DIRECTORY, path, filename)),
         'query': query,
         'title': _(u'Versions for "%s"') % filename,
+        'is_popup': "pop" in request.REQUEST,
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Versions for "%s"') % filename
