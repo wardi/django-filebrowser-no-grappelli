@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from filebrowser.settings import *
 from filebrowser.base import FileObject
 from filebrowser.functions import url_to_path
+from filebrowser import get_default_dir
 
 
 class FileBrowseWidget(Input):
@@ -38,7 +39,7 @@ class FileBrowseWidget(Input):
             value = ""
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
         final_attrs['search_icon'] = URL_FILEBROWSER_MEDIA + 'img/filebrowser_icon_show.gif'
-        final_attrs['directory'] = self.directory
+        final_attrs['directory'] = self.directory or get_default_dir()
         final_attrs['extensions'] = self.extensions
         final_attrs['format'] = self.format
         final_attrs['ADMIN_THUMBNAIL'] = ADMIN_THUMBNAIL
