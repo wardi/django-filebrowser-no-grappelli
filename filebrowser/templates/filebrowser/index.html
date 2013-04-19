@@ -1,12 +1,12 @@
 {% extends "admin/base_site.html" %}
 
 <!-- LOADING -->
-{% load i18n adminmedia fb_tags fb_pagination %}
+{% load admin_static admin_urls admin_list i18n fb_tags fb_pagination %}
 
 <!-- STYLESHEETS -->
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% custom_admin_media_prefix %}css/changelists.css" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/changelists.css' %}" />
     <link rel="stylesheet" type="text/css" href="{{ settings_var.URL_FILEBROWSER_MEDIA }}css/filebrowser.css" />
 {% endblock %}
 
@@ -45,8 +45,8 @@
 <div id="content-main">
     {% block object-tools %}
     <ul class="object-tools">
-        <li><a href="{% url fb_mkdir %}{% query_string '' 'p' %}">{% trans "New Folder" %}</a></li>
-        <li><a href="{% url fb_upload %}{% query_string '' 'p' %}" class="focus">{% trans "Upload" %}</a></li>
+        <li><a href="{% url 'fb_mkdir' %}{% query_string '' 'p' %}">{% trans "New Folder" %}</a></li>
+        <li><a href="{% url 'fb_upload' %}{% query_string '' 'p' %}" class="focus">{% trans "Upload" %}</a></li>
     </ul>
     {% endblock %}
     <div class="module filtered" id="changelist">

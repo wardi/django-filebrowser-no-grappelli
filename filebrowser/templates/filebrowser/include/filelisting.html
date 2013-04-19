@@ -1,4 +1,6 @@
-{% load i18n adminmedia fb_tags fb_versions %}
+{% load i18n fb_tags fb_versions %}
+{% load admin_static admin_list %}
+{% load admin_urls %}
 
 {% for file in page.object_list %}
     <tr class="{% cycle 'row1' 'row2' %}{% if file.filetype == "Folder" %} fb_folder{% endif %}">
@@ -53,7 +55,7 @@
         
         <!-- FILENAME/DIMENSIONS -->
         {% if file.filetype == "Folder" %}
-            <td><a href="{% url fb_browse %}{% query_string "" "q,dir,p" %}&amp;dir={{ file.path_relative_directory|urlencode }}"><strong>{{ file.filename }}</strong></a></td>
+            <td><a href="{% url 'fb_browse' %}{% query_string "" "q,dir,p" %}&amp;dir={{ file.path_relative_directory|urlencode }}"><strong>{{ file.filename }}</strong></a></td>
         {% else %}
             <td>
                 <b><a href="{{ file.url_full }}">{{ file.filename }}</a></b>
@@ -69,7 +71,7 @@
                 {% endif %}
                 {% endcomment %}
                 {% if results_var.images_total and settings_var.ADMIN_VERSIONS and file.filetype == "Image" %}
-                    <a class="internal fb_showversions" href="{% url fb_versions %}{% query_string "" "p" %}&amp;filename={{ file.filename }}" title="{% trans 'Versions' %}">{% trans 'Versions' %}</a>
+                    <a class="internal fb_showversions" href="{% url 'fb_versions' %}{% query_string "" "p" %}&amp;filename={{ file.filename }}" title="{% trans 'Versions' %}">{% trans 'Versions' %}</a>
                 {% endif %}
             </td>
         {% endif %}
@@ -82,16 +84,16 @@
         <td>{{ file.datetime|date:"N j, Y" }}</td>
 
         <!-- RENAME -->
-        <td class="fb_icon"><a href="{% url fb_rename %}{% query_string %}&amp;filename={{ file.filename }}" class="fb_renamelink" title="{% trans 'Rename' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_rename.gif" /></a></td>
+        <td class="fb_icon"><a href="{% url 'fb_rename' %}{% query_string %}&amp;filename={{ file.filename }}" class="fb_renamelink" title="{% trans 'Rename' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_rename.gif" /></a></td>
 
         <!-- DELETE -->
         {% if results_var.delete_total %}
         <td class="fb_icon">
           {% ifnotequal file.filetype 'Folder' %}
-          <a href="{% url fb_delete %}{% query_string %}&amp;filename={{ file.filename }}&amp;filetype={{ file.filetype }}" class="fb_deletelink" onclick="return confirm('{% trans "Are you sure you want to delete this file?" %}');" title="{% trans 'Delete File' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_delete.gif" /></a>
+          <a href="{% url 'fb_delete' %}{% query_string %}&amp;filename={{ file.filename }}&amp;filetype={{ file.filetype }}" class="fb_deletelink" onclick="return confirm('{% trans "Are you sure you want to delete this file?" %}');" title="{% trans 'Delete File' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_delete.gif" /></a>
           {% else %}
           {% if file.is_empty %}
-          <a href="{% url fb_delete %}{% query_string %}&amp;filename={{ file.filename }}&amp;filetype={{ file.filetype }}" class="fb_deletelink" onclick="return confirm('{% trans "Are you sure you want to delete this Folder?" %}');" title="{% trans 'Delete Folder' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_delete.gif" /></a>
+          <a href="{% url 'fb_delete' %}{% query_string %}&amp;filename={{ file.filename }}&amp;filetype={{ file.filetype }}" class="fb_deletelink" onclick="return confirm('{% trans "Are you sure you want to delete this Folder?" %}');" title="{% trans 'Delete Folder' %}"><img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_icon_delete.gif" /></a>
           {% endif %}
           {% endifnotequal %}
         </td>
