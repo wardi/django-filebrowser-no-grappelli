@@ -6,7 +6,7 @@
 <!-- STYLESHEETS -->
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/forms.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}" />
     <link rel="stylesheet" type="text/css" href="{{ settings_var.URL_FILEBROWSER_MEDIA }}css/filebrowser.css" />
     <link rel="stylesheet" type="text/css" href="{{ settings_var.URL_FILEBROWSER_MEDIA }}uploadify/uploadify.css" />
 {% endblock %}
@@ -15,12 +15,12 @@
 {% block extrahead %}
     {{ block.super }}
     <script type="text/javascript" src="../../jsi18n/"></script>
-    <script type="text/javascript" src="{% static 'js/core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
 
     <script type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}uploadify/jquery-1.3.2.min.js"></script>
     <script type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}uploadify/jquery.uploadify.v2.1.0.js"></script>
     <script type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}uploadify/swfobject.js"></script>
-    <script type="text/javascript" src="{% static 'js/admin/CollapsedFieldsets.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/collapse.js' %}"></script>
     <script type="text/javascript">
     (function($){
         $(document).ready(function() {
