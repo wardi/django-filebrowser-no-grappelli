@@ -1,8 +1,8 @@
-{% load i18n adminmedia fb_tags fb_versions %}
+{% load i18n fb_tags fb_versions static %}
 
 {% for file in page.object_list %}
     <tr class="{% cycle 'row1' 'row2' %}{% if file.filetype == "Folder" %} fb_folder{% endif %}">
-        
+
         <!-- FILESELECT FOR FILEBROWSEFIELD -->
         {% if query.pop == "1" and results_var.select_total %}
             <td class="fb_icon">
@@ -14,7 +14,7 @@
                 {% endif %}
             </td>
         {% endif %}
-        
+
         <!-- FILESELECT FOR RTE/TINYMCE -->
         {% if query.pop == "2" and results_var.select_total %}
             <td class="fb_icon">
@@ -26,7 +26,7 @@
                 {% endif %}
             </td>
         {% endif %}
-        
+
         <!-- FILESELECT FOR CKEDITOR (FORMER "FCKEDITOR") -->
         {% if query.pop == "3" and results_var.select_total %}
             <td class="fb_icon">
@@ -38,19 +38,19 @@
                 {% endif %}
             </td>
         {% endif %}
-        
+
         <!-- FILEICON -->
         <td>
             <img src="{{ settings_var.URL_FILEBROWSER_MEDIA }}img/filebrowser_type_{{ file.filetype|lower }}.gif" />
         </td>
-        
+
         <!-- THUMBNAIL -->
         <td class="fb_thumbnail">
             {% if file.filetype == "Image" %}
                 <a href="{{ file.url_full }}" class="fb_viewlink"><img src="{% version file.path settings_var.ADMIN_THUMBNAIL %}" title="{% trans 'View Image' %}" /></a>
             {% endif %}
         </td>
-        
+
         <!-- FILENAME/DIMENSIONS -->
         {% if file.filetype == "Folder" %}
             <td><a href="{% url fb_browse %}{% query_string "" "q,dir,p" %}&amp;dir={{ file.path_relative_directory|urlencode }}"><strong>{{ file.filename }}</strong></a></td>
@@ -74,10 +74,10 @@
             </td>
         {% endif %}
 
-          
+
         <!-- SIZE -->
         <td>{{ file.filesize|filesizeformat }}</td>
-        
+
         <!-- DATE -->
         <td>{{ file.datetime|date:"N j, Y" }}</td>
 
@@ -96,7 +96,7 @@
           {% endifnotequal %}
         </td>
         {% endif %}
-        
+
         <!-- DEBUG -->
         {% if settings_var.DEBUG %}
         <td>
@@ -125,8 +125,8 @@
             {% endif %}
         </td>
         {% endif %}
-        
+
     </tr>
 {% endfor %}
 
- 
+
