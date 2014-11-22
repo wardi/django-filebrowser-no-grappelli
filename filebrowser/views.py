@@ -260,8 +260,10 @@ def _check_file(request):
     """
     Check if file already exists on the server.
     """
-    
-    from django.utils import simplejson
+    try:
+        from django.utils import simplejson
+    except ImportError:
+        import json as simplejson
     
     folder = request.POST.get('folder')
     fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
