@@ -73,6 +73,9 @@ def get_version_path(value, version_prefix):
     
     version_filename = filename + version_prefix + ext
     Returns a path relative to MEDIA_ROOT.
+    :type value: str|unicode
+    :type version_prefix: str|unicode
+    :rtype: unicode
     """
     
     if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value))):
@@ -81,11 +84,16 @@ def get_version_path(value, version_prefix):
         
         # check if this file is a version of an other file
         # to return filename_<version>.ext instead of filename_<version>_<version>.ext
-        tmp = filename.split("_")
-        if tmp[len(tmp)-1] in ADMIN_VERSIONS:
-            # it seems like the "original" is actually a version of an other original
-            # so we strip the suffix (aka. version_perfix)
-            new_filename = filename.replace("_" + tmp[len(tmp)-1], "")
+        version_name = None
+        new_filename = None
+        for version in VERSIONS:
+            if filename.endswith("_" + version):
+                if not version_name or len(version) > len(version_name):
+                    version_name = version
+                    new_filename = filename.replace("_" + version, "")
+        # for version in admin_versions
+
+        if new_filename:
             # check if the version exists when we use the new_filename
             if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext))):
                 # our "original" filename seem to be filename_<version> construct
