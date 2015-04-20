@@ -66,12 +66,14 @@ def dir_from_url(value):
     return os.path.split(value)[0]
 
 
-def get_version_path(value, version_prefix):
+def get_version_path(value, version_prefix=''):
     """
     Construct the PATH to an Image version.
     Value has to be server-path, relative to MEDIA_ROOT.
     
     version_filename = filename + version_prefix + ext
+    if version_prefix is empty returns original file name
+
     Returns a path relative to MEDIA_ROOT.
     :type value: str|unicode
     :type version_prefix: str|unicode
@@ -85,26 +87,35 @@ def get_version_path(value, version_prefix):
         # check if this file is a version of an other file
         # to return filename_<version>.ext instead of filename_<version>_<version>.ext
         version_name = None
-        new_filename = None
+        orig_filename = None
         for version in VERSIONS:
             if filename.endswith("_" + version):
                 if not version_name or len(version) > len(version_name):
                     version_name = version
-                    new_filename = filename.replace("_" + version, "")
+                    orig_filename = filename.replace("_" + version, "")
         # for version in admin_versions
 
-        if new_filename:
-            # check if the version exists when we use the new_filename
-            if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, path, new_filename + "_" + version_prefix + ext))):
+        if orig_filename:
+            # check if the version exists when we use the orig_filename
+            if version_prefix:
+                new_filename = smart_str(os.path.join(fb_settings.MEDIA_ROOT, path,
+                                                      orig_filename + "_" + version_prefix + ext))
+            else:
+                new_filename = smart_str(os.path.join(fb_settings.MEDIA_ROOT, path,
+                                                      orig_filename + ext))
+            if os.path.isfile(new_filename):
                 # our "original" filename seem to be filename_<version> construct
-                # so we replace it with the new_filename
-                filename = new_filename
+                # so we replace it with the orig_filename
+                filename = orig_filename
                 # if a VERSIONS_BASEDIR is set we need to strip it from the path
                 # or we get a <VERSIONS_BASEDIR>/<VERSIONS_BASEDIR>/... construct
                 if VERSIONS_BASEDIR != "":
                         path = path.replace(VERSIONS_BASEDIR + "/", "")
         
-        version_filename = filename + "_" + version_prefix + ext
+        if version_prefix:
+            version_filename = filename + "_" + version_prefix + ext
+        else:
+            version_filename = filename + ext
         return os.path.join(VERSIONS_BASEDIR, path, version_filename)
     else:
         return None
