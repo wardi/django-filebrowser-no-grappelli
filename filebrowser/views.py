@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # general imports
-import os, re
+import os, re, sys
 from time import gmtime, strftime
 
 # django imports
@@ -261,7 +261,11 @@ def _check_file(request):
     Check if file already exists on the server.
     """
     
-    from django.utils import simplejson
+    if sys.version_info < (2, 6):
+        from django.utils import simplejson
+    else:
+        import json as simplejson
+
     
     folder = request.POST.get('folder')
     fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
