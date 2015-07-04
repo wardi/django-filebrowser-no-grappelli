@@ -17,7 +17,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import Signal
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_unicode
 
 try:
     # django SVN
@@ -276,7 +276,7 @@ def _check_file(request):
         for k,v in request.POST.items():
             if k != "folder":
                 v = convert_filename(v)
-                if os.path.isfile(smart_str(_check_access(request, folder, v))):
+                if os.path.isfile(smart_unicode(_check_access(request, folder, v))):
                     fileArray[k] = v
     
     return HttpResponse(simplejson.dumps(fileArray))
@@ -311,9 +311,9 @@ def _upload_file(request):
             uploadedfile = handle_file_upload(abs_path, filedata)
             # MOVE UPLOADED FILE
             # if file already exists
-            if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, filedata.name))):
-                old_file = smart_str(os.path.join(abs_path, filedata.name))
-                new_file = smart_str(os.path.join(abs_path, uploadedfile))
+            if os.path.isfile(smart_unicode(os.path.join(fb_settings.MEDIA_ROOT, fb_settings.DIRECTORY, folder, filedata.name))):
+                old_file = smart_unicode(os.path.join(abs_path, filedata.name))
+                new_file = smart_unicode(os.path.join(abs_path, uploadedfile))
                 file_move_safe(new_file, old_file)
             # POST UPLOAD SIGNAL
             filebrowser_post_upload.send(sender=request, path=request.POST.get('folder'), file=FileObject(smart_str(os.path.join(fb_settings.DIRECTORY, folder, filedata.name))))
@@ -353,7 +353,7 @@ def delete(request):
                 filebrowser_pre_delete.send(sender=request, path=path, filename=filename)
 
                 # DELETE FILE
-                os.unlink(smart_str(_check_access(request, path, filename)))
+                os.unlink(smart_unicode(_check_access(request, path, filename)))
                 # DELETE IMAGE VERSIONS/THUMBNAILS
                 for version in VERSIONS:
                     try:
