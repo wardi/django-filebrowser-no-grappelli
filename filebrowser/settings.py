@@ -18,6 +18,20 @@ except ImportError:
                             posixpath.join(settings.STATIC_URL, 'admin/')) + "tinymce/jscripts/tiny_mce/"
     DEFAULT_PATH_TINYMCE = os.path.join(settings.MEDIA_ROOT, 'admin/tinymce/jscripts/tiny_mce/')
 
+# storage settings
+if hasattr(settings, 'FILEBROWSER_STORAGE_CLASS'):
+    from django.core.files.storage import get_storage_class
+    from django.utils.functional import LazyObject
+
+    class FilebrowserStorageClass(LazyObject):
+        def _setup(self):
+            self._wrapped = get_storage_class(import_path=settings.FILEBROWSER_STORAGE_CLASS)()
+
+    FILEBROWSER_STORAGE = FilebrowserStorageClass()
+else:
+    from django.core.files.storage import default_storage
+    FILEBROWSER_STORAGE = default_storage
+
 # Set to True in order to see the FileObject when Browsing.
 DEBUG = getattr(settings, "FILEBROWSER_DEBUG", False)
 
