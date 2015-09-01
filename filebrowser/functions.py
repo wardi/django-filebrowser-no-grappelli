@@ -66,7 +66,7 @@ def dir_from_url(value):
     return os.path.split(value)[0]
 
 
-def get_version_path(value, version_prefix=''):
+def get_version_path(value, version_prefix='', check_file=True):
     """
     Construct the PATH to an Image version.
     Value has to be server-path, relative to MEDIA_ROOT.
@@ -74,13 +74,17 @@ def get_version_path(value, version_prefix=''):
     version_filename = filename + version_prefix + ext
     if version_prefix is empty returns original file name
 
+    if check_file is not True, then just manipulate file names, do not check actual
+    file and versions existence
+
     Returns a path relative to MEDIA_ROOT.
     :type value: str|unicode
     :type version_prefix: str|unicode
+    :type check_file: bool
     :rtype: unicode
     """
     
-    if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value))):
+    if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value))) or not check_file:
         path, filename = os.path.split(value)
         filename, ext = os.path.splitext(filename)
         
@@ -103,7 +107,7 @@ def get_version_path(value, version_prefix=''):
             else:
                 new_filename = smart_str(os.path.join(fb_settings.MEDIA_ROOT, path,
                                                       orig_filename + ext))
-            if os.path.isfile(new_filename):
+            if os.path.isfile(new_filename) or not check_file:
                 # our "original" filename seem to be filename_<version> construct
                 # so we replace it with the orig_filename
                 filename = orig_filename
