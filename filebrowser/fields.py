@@ -81,6 +81,8 @@ class FileBrowseFormField(forms.CharField):
 
 
 class FileBrowseField(Field):
+    __metaclass__ = models.SubfieldBase
+    
     def __init__(self, *args, **kwargs):
         self.directory = kwargs.pop('directory', '')
         self.extensions = kwargs.pop('extensions', '')
