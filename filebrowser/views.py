@@ -34,7 +34,6 @@ from filebrowser.conf import fb_settings
 from filebrowser.functions import path_to_url, sort_by_attr, get_path, get_file, get_version_path, get_breadcrumbs, get_filterdate, get_settings_var, handle_file_upload, convert_filename
 from filebrowser.templatetags.fb_tags import query_helper
 from filebrowser.base import FileObject
-from filebrowser.decorators import flash_login_required
 
 # Precompile regular expressions
 filter_re = []
@@ -224,6 +223,8 @@ def mkdir(request):
 mkdir = staff_member_required(never_cache(mkdir))
 
 
+@staff_member_required
+@never_cache
 def upload(request):
     """
     Multipe File Upload.
@@ -244,6 +245,7 @@ def upload(request):
     session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
     
     return render_to_response('filebrowser/upload.html', {
+        'upload_path': path,
         'query': query,
         'title': _(u'Select files to upload'),
         'settings_var': get_settings_var(),
@@ -251,7 +253,6 @@ def upload(request):
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Upload')
     }, context_instance=Context(request))
-upload = staff_member_required(never_cache(upload))
 
 
 @csrf_exempt
@@ -284,8 +285,8 @@ def _check_file(request):
 filebrowser_pre_upload = Signal(providing_args=["path", "file"])
 filebrowser_post_upload = Signal(providing_args=["path", "file"])
 
+
 @csrf_exempt
-@flash_login_required
 @staff_member_required
 def _upload_file(request):
     """
