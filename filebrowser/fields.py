@@ -17,6 +17,7 @@ from filebrowser.settings import *
 from filebrowser.base import FileObject
 from filebrowser.functions import url_to_path
 from filebrowser import get_default_dir
+from .subfield import SubfieldBase
 
 
 class FileBrowseWidget(Input):
@@ -81,7 +82,7 @@ class FileBrowseFormField(forms.CharField):
 
 
 class FileBrowseField(Field):
-    __metaclass__ = models.SubfieldBase
+    __metaclass__ = SubfieldBase
     
     def __init__(self, *args, **kwargs):
         self.directory = kwargs.pop('directory', '')
@@ -98,8 +99,7 @@ class FileBrowseField(Field):
         if value is None:
             return None
         return unicode(value)
-        
-    
+
     def get_manipulator_field_objs(self):
         return [oldforms.TextField]
     
