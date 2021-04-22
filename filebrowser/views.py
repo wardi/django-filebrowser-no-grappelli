@@ -159,7 +159,7 @@ def browse(request):
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': ""
-    }, context_instance=Context(request))
+    })
 browse = staff_member_required(never_cache(browse))
 
 
@@ -219,7 +219,7 @@ def mkdir(request):
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'New Folder')
-    }, context_instance=Context(request))
+    })
 mkdir = staff_member_required(never_cache(mkdir))
 
 
@@ -252,7 +252,7 @@ def upload(request):
         'session_key': session_key,
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Upload')
-    }, context_instance=Context(request))
+    })
 
 
 @csrf_exempt
@@ -460,7 +460,7 @@ def rename(request):
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Rename')
-    }, context_instance=Context(request))
+    })
 rename = staff_member_required(never_cache(rename))
 
 
@@ -489,7 +489,7 @@ def versions(request):
         'settings_var': get_settings_var(),
         'breadcrumbs': get_breadcrumbs(query, path),
         'breadcrumbs_title': _(u'Versions for "%s"') % filename
-    }, context_instance=Context(request))
+    })
 versions = staff_member_required(never_cache(versions))
 
 
