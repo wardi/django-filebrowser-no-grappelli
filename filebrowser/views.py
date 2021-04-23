@@ -5,15 +5,15 @@ import os, re
 from time import gmtime, strftime
 
 # django imports
-from django.shortcuts import render_to_response, HttpResponse
+from django.shortcuts import render as render_to_response, HttpResponse
 from django.template import RequestContext as Context
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django import forms
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import Signal
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -38,10 +38,11 @@ from filebrowser.base import FileObject
 # Precompile regular expressions
 filter_re = []
 for exp in EXCLUDE:
-   filter_re.append(re.compile(exp))
-for k,v in VERSIONS.iteritems():
+    filter_re.append(re.compile(exp))
+for k,v in VERSIONS.items():
     exp = (r'_%s.(%s)') % (k, '|'.join(EXTENSION_LIST))
     filter_re.append(re.compile(exp))
+
 
 def _check_access(request, *path):
     """
@@ -72,14 +73,14 @@ def browse(request):
         messages.warning(request,message=msg)
         if directory is None:
             # The DIRECTORY does not exist, raise an error to prevent eternal redirecting.
-            raise ImproperlyConfigured, _("Error finding Upload-Folder. Maybe it does not exist?")
+            raise ImproperlyConfigured(_("Error finding Upload-Folder. Maybe it does not exist?"))
         redirect_url = reverse("fb_browse") + query_helper(query, "", "dir")
         return HttpResponseRedirect(redirect_url)
     
     # INITIAL VARIABLES
     results_var = {'results_total': 0, 'results_current': 0, 'delete_total': 0, 'images_total': 0, 'select_total': 0 }
     counter = {}
-    for k,v in EXTENSIONS.iteritems():
+    for k,v in EXTENSIONS.items():
         counter[k] = 0
     
     dir_list = os.listdir(abs_path)
@@ -136,7 +137,7 @@ def browse(request):
     query['ot'] = request.GET.get('ot', DEFAULT_SORTING_ORDER)
     files = sort_by_attr(files, request.GET.get('o', DEFAULT_SORTING_BY))
     if not request.GET.get('ot') and DEFAULT_SORTING_ORDER == "desc" or request.GET.get('ot') == "desc":
-        files.reverse()
+        files = tuple(reversed(files))
     
     p = Paginator(files, LIST_PER_PAGE)
     try:
@@ -148,7 +149,7 @@ def browse(request):
     except (EmptyPage, InvalidPage):
         page = p.page(p.num_pages)
     
-    return render_to_response('filebrowser/index.html', {
+    return render_to_response(request, template_name='filebrowser/index.html', context={
         'dir': path,
         'p': p,
         'page': page,
@@ -193,7 +194,7 @@ def mkdir(request):
                 filebrowser_pre_createdir.send(sender=request, path=path, dirname=_new_dir_name)
                 # CREATE FOLDER
                 os.mkdir(server_path)
-                os.chmod(server_path, 0775)
+                os.chmod(server_path, 0o775)
                 # POST CREATE SIGNAL
                 filebrowser_post_createdir.send(sender=request, path=path, dirname=_new_dir_name)
                 # MESSAGE & REDIRECT
@@ -204,7 +205,8 @@ def mkdir(request):
                 # remove pagination
                 redirect_url = reverse("fb_browse") + query_helper(query, "ot=desc,o=date", "ot,o,filter_type,filter_date,q,p")
                 return HttpResponseRedirect(redirect_url)
-            except OSError, (errno, strerror):
+            except OSError as e:
+                (errno, strerror) = (e.errno, e.strerror)
                 if errno == 13:
                     form.errors['dir_name'] = forms.util.ErrorList([_('Permission denied.')])
                 else:
@@ -212,7 +214,7 @@ def mkdir(request):
     else:
         form = MakeDirForm(abs_path)
     
-    return render_to_response('filebrowser/makedir.html', {
+    return render_to_response(request, 'filebrowser/makedir.html', {
         'form': form,
         'query': query,
         'title': _(u'New Folder'),
@@ -244,7 +246,7 @@ def upload(request):
     # SESSION (used for flash-uploading)
     session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
     
-    return render_to_response('filebrowser/upload.html', {
+    return render_to_response(request, 'filebrowser/upload.html', {
         'upload_path': path,
         'query': query,
         'title': _(u'Select files to upload'),
@@ -367,9 +369,9 @@ def delete(request):
                 messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
-            except OSError, e:
+            except OSError as e:
                 # todo: define error message
-                msg = unicode(e)
+                msg = str(e)
         else:
             try:
                 # PRE DELETE SIGNAL
@@ -383,9 +385,9 @@ def delete(request):
                 messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename,filetype")
                 return HttpResponseRedirect(redirect_url)
-            except OSError, e:
+            except OSError as e:
                 # todo: define error message
-                msg = unicode(e)
+                msg = str(e)
 
     if msg:
         messages.error(request, e)
@@ -447,12 +449,12 @@ def rename(request):
                 messages.success(request,message=msg)
                 redirect_url = reverse("fb_browse") + query_helper(query, "", "filename")
                 return HttpResponseRedirect(redirect_url)
-            except OSError, (errno, strerror):
+            except OSError as e:
                 form.errors['name'] = forms.util.ErrorList([_('Error.')])
     else:
         form = RenameForm(abs_path, file_extension)
     
-    return render_to_response('filebrowser/rename.html', {
+    return render_to_response(request, 'filebrowser/rename.html', {
         'form': form,
         'query': query,
         'file_extension': file_extension,
@@ -482,7 +484,7 @@ def versions(request):
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = _check_access(request, path)
     
-    return render_to_response('filebrowser/versions.html', {
+    return render_to_response(request, 'filebrowser/versions.html', {
         'original': path_to_url(os.path.join(fb_settings.DIRECTORY, path, filename)),
         'query': query,
         'title': _(u'Versions for "%s"') % filename,

@@ -8,10 +8,11 @@ from time import gmtime, strftime
 from django.conf import settings
 
 # filebrowser imports
+from django.utils.encoding import smart_str as force_unicode
+
 from filebrowser.settings import *
 from filebrowser.conf import fb_settings
 from filebrowser.functions import get_file_type, url_join, is_selectable, get_version_path
-from django.utils.encoding import force_unicode
 
 # PIL import
 if STRICT_PIL:

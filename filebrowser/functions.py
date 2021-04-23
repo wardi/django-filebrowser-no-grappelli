@@ -3,12 +3,8 @@
 # imports
 import os, re, decimal
 from time import gmtime, strftime, localtime, mktime, time
-from urlparse import urlparse
 
 # django imports
-from django.utils.translation import ugettext as _
-from django.utils.safestring import mark_safe
-from django.core.files import File
 from django.core.files.storage import default_storage
 from django.utils.encoding import smart_str
 
@@ -47,7 +43,7 @@ def path_to_url(value):
     Return an URL relative to MEDIA_ROOT.
     """
     
-    mediaroot_re = re.compile(r'^(%s)' % (fb_settings.MEDIA_ROOT))
+    mediaroot_re = re.compile(r'^(%s)' % (fb_settings.MEDIA_ROOT.replace("\\", "\\\\")))
     value = mediaroot_re.sub('', value)
     return url_join(fb_settings.MEDIA_URL, value)
 
@@ -143,9 +139,9 @@ def sort_by_attr(seq, attr):
     # (seq[i].attr, i, seq[i]) and sort it. The second item of tuple is needed not
     # only to provide stable sorting, but mainly to eliminate comparison of objects
     # (which can be expensive or prohibited) in case of equal attribute values.
-    intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
-    intermed.sort()
-    return map(operator.getitem, intermed, (-1,) * len(intermed))
+    intermed = map(lambda *x: x, map(getattr, seq, (attr,)*len(seq)), range(len(seq)), seq)
+    intermed = sorted(intermed)
+    return tuple(map(operator.getitem, intermed, (-1,) * len(intermed)))
 
 
 def url_join(*args):
@@ -272,7 +268,7 @@ def get_file_type(filename):
     
     file_extension = os.path.splitext(filename)[1].lower()
     file_type = ''
-    for k,v in EXTENSIONS.iteritems():
+    for k,v in EXTENSIONS.items():
         for extension in v:
             if file_extension == extension.lower():
                 file_type = k
@@ -317,7 +313,7 @@ def version_generator(value, version_prefix, force=None):
         version_dir = os.path.split(absolute_version_path)[0]
         if not os.path.isdir(version_dir):
             os.makedirs(version_dir)
-            os.chmod(version_dir, 0775)
+            os.chmod(version_dir, 0o775)
         version = scale_and_crop(im, VERSIONS[version_prefix]['width'], VERSIONS[version_prefix]['height'], VERSIONS[version_prefix]['opts'])
         try:
             version.save(absolute_version_path, quality=90, optimize=(os.path.splitext(version_path)[1].lower() != '.gif'))

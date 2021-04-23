@@ -4,12 +4,11 @@
 import os
 
 # django imports
-from django.db import models
 from django import forms
 from django.forms.widgets import Input
-from django.db.models.fields import Field, CharField
-from django.utils.encoding import force_unicode
+from django.db.models.fields import Field
 from django.template.loader import render_to_string
+from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
 
 # filebrowser imports
@@ -35,7 +34,7 @@ class FileBrowseWidget(Input):
         else:
             self.attrs = {}
     
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, **kwargs):
         if value is None:
             value = ""
         final_attrs = self.build_attrs(attrs, dict(type=self.input_type, name=name))
@@ -98,7 +97,7 @@ class FileBrowseField(Field):
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
             return None
-        return unicode(value)
+        return smart_str(value)
 
     def get_manipulator_field_objs(self):
         return [oldforms.TextField]

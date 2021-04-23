@@ -7,7 +7,7 @@ from time import gmtime
 # django imports
 from django.template import Library, Node, Variable, VariableDoesNotExist, TemplateSyntaxError
 from django.conf import settings
-from django.utils.encoding import force_unicode, smart_str
+from django.utils.encoding import smart_str
 
 # filebrowser imports
 from filebrowser.settings import VERSIONS
@@ -40,7 +40,7 @@ class VersionNode(Node):
             except VariableDoesNotExist:
                 return None
         try:
-            source = force_unicode(source)
+            source = smart_str(source)
             version_path = get_version_path(url_to_path(source), version_prefix)
             if not os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # create version
@@ -67,9 +67,9 @@ def version(parser, token):
     try:
         tag, src, version_prefix = token.split_contents()
     except:
-        raise TemplateSyntaxError, "%s tag requires 2 arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%s tag requires 2 arguments" % token.contents.split()[0])
     if (version_prefix[0] == version_prefix[-1] and version_prefix[0] in ('"', "'")) and version_prefix.lower()[1:-1] not in VERSIONS:
-        raise TemplateSyntaxError, "%s tag received bad version_prefix %s" % (tag, version_prefix)
+        raise TemplateSyntaxError("%s tag received bad version_prefix %s" % (tag, version_prefix))
     return VersionNode(src, version_prefix)
 
 
@@ -96,7 +96,7 @@ class VersionObjectNode(Node):
             except VariableDoesNotExist:
                 return None
         try:
-            source = force_unicode(source)
+            source = smart_str(source)
             version_path = get_version_path(url_to_path(source), version_prefix)
             if not os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, version_path))):
                 # create version
@@ -127,13 +127,13 @@ def version_object(parser, token):
         #tag, src, version_prefix = token.split_contents()
         tag, arg = token.contents.split(None, 1)
     except:
-        raise TemplateSyntaxError, "%s tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%s tag requires arguments" % token.contents.split()[0])
     m = re.search(r'(.*?) (.*?) as (\w+)', arg)
     if not m:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag)
     src, version_prefix, var_name = m.groups()
     if (version_prefix[0] == version_prefix[-1] and version_prefix[0] in ('"', "'")) and version_prefix.lower()[1:-1] not in VERSIONS:
-        raise TemplateSyntaxError, "%s tag received bad version_prefix %s" % (tag, version_prefix)
+        raise TemplateSyntaxError("%s tag received bad version_prefix %s" % (tag, version_prefix))
     return VersionObjectNode(src, version_prefix, var_name)
 
 
@@ -165,9 +165,9 @@ def version_setting(parser, token):
     try:
         tag, version_prefix = token.split_contents()
     except:
-        raise TemplateSyntaxError, "%s tag requires 1 argument" % token.contents.split()[0]
+        raise TemplateSyntaxError("%s tag requires 1 argument" % token.contents.split()[0])
     if (version_prefix[0] == version_prefix[-1] and version_prefix[0] in ('"', "'")) and version_prefix.lower()[1:-1] not in VERSIONS:
-        raise TemplateSyntaxError, "%s tag received bad version_prefix %s" % (tag, version_prefix)
+        raise TemplateSyntaxError("%s tag received bad version_prefix %s" % (tag, version_prefix))
     return VersionSettingNode(version_prefix)
 
 

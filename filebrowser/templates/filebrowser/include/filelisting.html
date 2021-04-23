@@ -1,4 +1,4 @@
-{% load i18n staticfiles fb_tags fb_versions %}
+{% load i18n static fb_tags fb_versions %}
 
 {% for file in page.object_list %}
     <tr class="{% cycle 'row1' 'row2' %}{% if file.filetype == "Folder" %} fb_folder{% endif %}">

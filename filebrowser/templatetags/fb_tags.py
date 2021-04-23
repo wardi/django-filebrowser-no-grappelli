@@ -47,15 +47,15 @@ def query_helper(query, add=None, remove=None):
 def get_query_string(p, new_params=None, remove=None):
     """
     Add and remove query parameters. From `django.contrib.admin`.
+    @p:type dict
     """
     
     if new_params is None: new_params = {}
     if remove is None: remove = []
     for r in remove:
-        for k in p.keys():
-            #if k.startswith(r):
-            if k == r:
-                del p[k]
+        if r in p:
+            del p[r]
+
     for k, v in new_params.items():
         if k in p and v is None:
             del p[k]
@@ -134,7 +134,7 @@ def selectable(parser, token):
     try:
         tag, filetype, format = token.split_contents()
     except:
-        raise template.TemplateSyntaxError, "%s tag requires 2 arguments" % token.contents.split()[0]
+        raise template.TemplateSyntaxError("%s tag requires 2 arguments" % token.contents.split()[0])
         
     return SelectableNode(filetype, format)
     
